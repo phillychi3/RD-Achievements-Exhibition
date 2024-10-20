@@ -83,8 +83,10 @@ Deno.serve(async (req) => {
 
         const response = {
           ask: question.ask,
-          questions: question.questions,
-          answer: question.answer
+          questions1: question.questions1,
+          questions2: question.questions2,
+          answer1: question.answer1,
+          answer2: question.answer2
         }
 
         return new Response(JSON.stringify(response), {
@@ -107,8 +109,10 @@ Deno.serve(async (req) => {
         const response = questions.map((question) => ({
           id: question.id,
           ask: question.ask,
-          questions: question.questions,
-          answer: question.answer,
+          questions1: question.questions1,
+          questions2: question.questions2,
+          answer1: question.answer1,
+          answer2: question.answer2,
           created_at: question.created_at
         }))
 
@@ -120,9 +124,9 @@ Deno.serve(async (req) => {
         })
       }
     } else if (req.method === 'POST') {
-      const { name, phone, answer, questionId } = await req.json()
+      const { name, phone, answer1,answer2, questionId } = await req.json()
 
-      if (!name || !phone || answer === undefined || !questionId) {
+      if (!name || !phone || answer1 || answer2 === undefined || !questionId) {
         throw new Error('請提供所有必要資訊：姓名、電話、答案和問題ID')
       }
 
@@ -141,7 +145,7 @@ Deno.serve(async (req) => {
         throw questionError
       }
 
-      const isCorrect = answer === question.answer
+      const isCorrect = answer1 === question.answer1 && answer2 === question.answer2
 
       const { data: questionCount } = await supabase
         .from('questions')
