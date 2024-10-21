@@ -83,6 +83,7 @@ Deno.serve(async (req) => {
 
         const response = {
           ask: question.ask,
+          ask2: question.ask2,
           questions1: question.questions1,
           questions2: question.questions2,
           answer1: question.answer1,
@@ -109,6 +110,7 @@ Deno.serve(async (req) => {
         const response = questions.map((question) => ({
           id: question.id,
           ask: question.ask,
+          ask2: question.ask2,
           questions1: question.questions1,
           questions2: question.questions2,
           answer1: question.answer1,

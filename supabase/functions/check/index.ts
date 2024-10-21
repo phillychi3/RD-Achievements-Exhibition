@@ -28,6 +28,7 @@ async function getUserProgress(phone: string) {
   const answers = user.answer || []
   const questionDetails = questions.map((q, index) => ({
     ask: q.ask,
+    ask2: q.ask2,
     correct: answers[index] === 1
   }))
 
