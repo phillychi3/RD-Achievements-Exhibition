@@ -126,9 +126,15 @@ Deno.serve(async (req) => {
         })
       }
     } else if (req.method === 'POST') {
-      const { name, phone, answer1,answer2, questionId } = await req.json()
+      const { name, phone, answer1, answer2, questionId } = await req.json()
 
-      if (!name || !phone || answer1 || answer2 === undefined || !questionId) {
+      if (
+        !name ||
+        !phone ||
+        answer1 === undefined ||
+        answer2 === undefined ||
+        !questionId
+      ) {
         throw new Error('請提供所有必要資訊：姓名、電話、答案和問題ID')
       }
 
@@ -142,12 +148,28 @@ Deno.serve(async (req) => {
 
       if (questionError) {
         if (questionError.code === 'PGRST116') {
-          throw new Error('the question does not exist')
+          return new Response(
+            JSON.stringify({ error: 'the question does not exist' }),
+            {
+              status: 404,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+              }
+            }
+          )
         }
-        throw questionError
+        return new Response(JSON.stringify({ error: questionError.message }), {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          }
+        })
       }
 
-      const isCorrect = answer1 === question.answer1 && answer2 === question.answer2
+      const isCorrect =
+        answer1 === question.answer1 && answer2 === question.answer2
 
       const { data: questionCount } = await supabase
         .from('questions')
@@ -170,6 +192,15 @@ Deno.serve(async (req) => {
           }
         }
       )
+    } else if (req.method === 'OPTIONS') {
+      return new Response("ok", {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers':
+            'authorization, x-client-info, apikey, content-type'
+        }
+      })
     } else {
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {
         status: 405,
