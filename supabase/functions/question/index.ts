@@ -163,7 +163,8 @@ Deno.serve(async (req) => {
           status: 500,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': '*',
+            'set-cookie': `username=${user.name}; userphone=${user.phone}; Path=/; SameSite=Strict`
           }
         })
       }
