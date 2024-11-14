@@ -135,7 +135,18 @@ Deno.serve(async (req) => {
         answer2 === undefined ||
         !questionId
       ) {
-        throw new Error('請提供所有必要資訊：姓名、電話、答案和問題ID')
+        return new Response(
+          JSON.stringify({
+            error: '請提供所有必要資訊：姓名、電話、答案和問題ID'
+          }),
+          {
+            status: 400,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*'
+            }
+          }
+        )
       }
 
       const user = await getOrCreateUser(name, phone)
@@ -181,20 +192,28 @@ Deno.serve(async (req) => {
 
       await updateUserAnswer(user.id, questionNumber, isCorrect)
 
+      const headers = new Headers()
+      headers.set('Content-Type', 'application/json')
+      headers.set('Access-Control-Allow-Origin', '*')
+      headers.append(
+        'Set-Cookie',
+        `username=${user.name}; Path=/; SameSite=Strict`
+      )
+      headers.append(
+        'Set-Cookie',
+        `userphone=${user.phone}; Path=/; SameSite=Strict`
+      )
+
       return new Response(
         JSON.stringify({
           correct: isCorrect
         }),
         {
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'set-cookie': `username=${user.name}; userphone=${user.phone}; Path=/; SameSite=Strict`
-          }
+          headers: headers
         }
       )
     } else if (req.method === 'OPTIONS') {
-      return new Response("ok", {
+      return new Response('ok', {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
