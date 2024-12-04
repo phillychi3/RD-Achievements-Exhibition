@@ -87,7 +87,8 @@ Deno.serve(async (req) => {
           questions1: question.questions1,
           questions2: question.questions2,
           answer1: question.answer1,
-          answer2: question.answer2
+          answer2: question.answer2,
+          name: question.work_name,
         }
 
         return new Response(JSON.stringify(response), {
@@ -115,7 +116,8 @@ Deno.serve(async (req) => {
           questions2: question.questions2,
           answer1: question.answer1,
           answer2: question.answer2,
-          created_at: question.created_at
+          created_at: question.created_at,
+          name: question.work_name,
         }))
 
         return new Response(JSON.stringify(response), {
