@@ -15,7 +15,18 @@ async function getUserProgress(lastThreeDigits: string) {
   }
 
   if (!users || users.length === 0) {
-    throw new Error('無法找到用戶')
+    return new Response(
+      JSON.stringify({
+        error: '找不到使用者'
+      }),
+      {
+        status: 404,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      }
+    )
   }
 
   const { data: questions, error: questionsError } = await supabase
@@ -34,7 +45,7 @@ async function getUserProgress(lastThreeDigits: string) {
     }))
 
     const correctCount = questionDetails.filter((q) => q.correct).length
-    const passed = correctCount >= 5
+    const passed = correctCount >= 10
 
     return {
       user,

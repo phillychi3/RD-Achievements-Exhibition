@@ -4,9 +4,17 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-console.log('Hello from Functions!')
-
 Deno.serve(async (req) => {
+  const headers = new Headers()
+  headers.set('Content-Type', 'application/json')
+  headers.set('Access-Control-Allow-Origin', '*')
+  headers.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+  headers.set('Access-Control-Allow-Headers', 'Content-Type')
+
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers })
+  }
+
   if (req.method === 'POST') {
     const { id } = await req.json()
     const { error } = await supabase
@@ -17,20 +25,17 @@ Deno.serve(async (req) => {
     if (error) {
       return new Response(JSON.stringify({ error: error.message }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers
       })
     }
 
     return new Response(JSON.stringify({ message: `User ${id} updated.` }), {
-      headers: { 'Content-Type': 'application/json' }
+      headers
     })
   } else {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      }
+      headers
     })
   }
 })
