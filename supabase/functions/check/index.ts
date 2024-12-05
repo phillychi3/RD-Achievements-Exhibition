@@ -4,40 +4,47 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-async function getUserProgress(phone: string) {
-  const { data: user, error: userError } = await supabase
+async function getUserProgress(lastThreeDigits: string) {
+  const { data: users, error: userError } = await supabase
     .from('users')
     .select('*')
-    .eq('phone', phone)
-    .single()
+    .like('phone', `%${lastThreeDigits}`)
 
   if (userError) {
-    if (userError.code === 'PGRST116') {
-      throw new Error('can not find user')
-    }
     throw userError
+  }
+
+  if (!users || users.length === 0) {
+    throw new Error('無法找到用戶')
   }
 
   const { data: questions, error: questionsError } = await supabase
     .from('questions')
     .select('*')
-    .order('created_at', { ascending: true })
+    .order('ct', { ascending: true })
 
   if (questionsError) throw questionsError
 
-  const answers = user.answer || []
-  const questionDetails = questions.map((q, index) => ({
-    ask: q.ask,
-    ask2: q.ask2,
-    correct: answers[index] === 1
-  }))
+  const userProgress = users.map((user) => {
+    const answers = user.answer || []
+    const questionDetails = questions.map((q, index) => ({
+      ask: q.ask,
+      ask2: q.ask2,
+      correct: answers[index] === 1
+    }))
 
-  const allCorrect = questionDetails.every((q) => q.correct)
+    const correctCount = questionDetails.filter((q) => q.correct).length
+    const passed = correctCount >= 5
 
-  return {
-    questions: questionDetails,
-    allCorrect
-  }
+    return {
+      user,
+      questions: questionDetails,
+      correctCount,
+      passed
+    }
+  })
+
+  return userProgress
 }
 
 Deno.serve(async (req) => {

@@ -51,7 +51,7 @@ async function updateUserAnswer(
   while (answers.length <= questionNumber) {
     answers.push(0)
   }
-  answers[questionNumber] = isCorrect ? 1 : 0
+  answers[questionNumber-1] = isCorrect ? 1 : 0
 
   const { error: updateError } = await supabase
     .from('users')
@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
           }
         })
       } else {
-        query = query.order('created_at', { ascending: true })
+        query = query.order('ct', { ascending: true })
 
         const { data: questions, error } = await query
 
@@ -184,15 +184,7 @@ Deno.serve(async (req) => {
       const isCorrect =
         answer1 === question.answer1 && answer2 === question.answer2
 
-      const { data: questionCount } = await supabase
-        .from('questions')
-        .select('id')
-        .lte('created_at', question.created_at)
-        .order('created_at', { ascending: true })
-
-      const questionNumber = questionCount ? questionCount.length - 1 : 0
-
-      await updateUserAnswer(user.id, questionNumber, isCorrect)
+      await updateUserAnswer(user.id, question.ct, isCorrect)
 
       const headers = new Headers()
       headers.set('Content-Type', 'application/json')
