@@ -51,7 +51,7 @@ async function updateUserAnswer(
   while (answers.length <= questionNumber) {
     answers.push(0)
   }
-  answers[questionNumber-1] = isCorrect ? 1 : 0
+  answers[questionNumber - 1] = isCorrect ? 1 : 0
 
   const { error: updateError } = await supabase
     .from('users')
@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
           questions2: question.questions2,
           answer1: question.answer1,
           answer2: question.answer2,
-          name: question.work_name,
+          name: question.work_name
         }
 
         return new Response(JSON.stringify(response), {
@@ -117,7 +117,7 @@ Deno.serve(async (req) => {
           answer1: question.answer1,
           answer2: question.answer2,
           created_at: question.created_at,
-          name: question.work_name,
+          name: question.work_name
         }))
 
         return new Response(JSON.stringify(response), {
@@ -189,13 +189,16 @@ Deno.serve(async (req) => {
       const headers = new Headers()
       headers.set('Content-Type', 'application/json')
       headers.set('Access-Control-Allow-Origin', '*')
+      const encodedName = encodeURIComponent(user.name)
+      const encodedPhone = encodeURIComponent(user.phone)
+
       headers.append(
         'Set-Cookie',
-        `username=${user.name}; Path=/; SameSite=Strict`
+        `username=${encodedName}; Path=/; SameSite=Strict`
       )
       headers.append(
         'Set-Cookie',
-        `userphone=${user.phone}; Path=/; SameSite=Strict`
+        `userphone=${encodedPhone}; Path=/; SameSite=Strict`
       )
 
       return new Response(
