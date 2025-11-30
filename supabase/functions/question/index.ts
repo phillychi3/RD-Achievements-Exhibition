@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
       let query = supabase.from('questions').select('*')
 
       if (questionId) {
-        query = query.eq('id', questionId)
+        query = query.eq('ct', questionId)
 
         const { data: question, error } = await query.single()
 
@@ -156,7 +156,7 @@ Deno.serve(async (req) => {
       const { data: question, error: questionError } = await supabase
         .from('questions')
         .select('*')
-        .eq('id', questionId)
+        .eq('ct', questionId)
         .single()
 
       if (questionError) {
